@@ -27,11 +27,13 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    exportsettings.cpp
+    exportsettings.cpp \
+    exportthread.cpp
 
 HEADERS += \
         mainwindow.h \
-    exportsettings.h
+    exportsettings.h \
+    exportthread.h
 
 FORMS += \
         mainwindow.ui \
