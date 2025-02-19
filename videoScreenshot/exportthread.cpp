@@ -36,6 +36,7 @@
  *   9. setOrthogonalCount        - 设置正交分布数
  *   10. run                      - 线程运行函数，处理视频导出
  *   11. processVideoFrame        - 处理视频帧
+ *   12. saveImage                - 保存图像
  *
  * 版本历史:
  *   - 版本 1.0 (2025-02-05) - LiuJiaLe
@@ -88,26 +89,51 @@ exportThread::~exportThread()
  ***********************************************************/
 void exportThread::run()
 {
-  // 设置视频源
-  mediaPlayer->setMedia(QUrl::fromLocalFile(videoFilePath));
+  try
+  {
+    // 设置视频源
+    mediaPlayer->setMedia(QUrl::fromLocalFile(videoFilePath));
 
-  // 等待媒体加载完成
-  while (mediaPlayer->mediaStatus() != QMediaPlayer::LoadedMedia)
-  {
-    QThread::msleep(100);
-  }
+    // 等待媒体加载完成
+    while (mediaPlayer->mediaStatus() != QMediaPlayer::LoadedMedia)
+    {
+      QThread::msleep(100);
+    }
 
-  // 平均间隔导出
-  if (exportMode == 0)
-  {
+    // 获取视频总时长(毫秒)
+    qint64 duration = mediaPlayer->duration();
+
+    // 根据视频帧率计算总帧数
+    double frameRate = 25.0; // 默认帧率25fps
+    totalFrames = static_cast<int>(duration / 1000.0 * frameRate);
+
+    qDebug() << "视频总时长:" << duration << "ms";
+    qDebug() << "预计总帧数:" << totalFrames;
+
+    // 创建导出目录
+    QDir dir(exportPath);
+    if (!dir.exists(exportName))
+    {
+      dir.mkdir(exportName);
+    }
+
+    // 开始播放视频以触发帧处理
+    isExporting = true;
+    frameCount = 0;
+    mediaPlayer->play();
+
+    // 等待视频播放完成
+    while (mediaPlayer->state() != QMediaPlayer::StoppedState)
+    {
+      QThread::msleep(100);
+    }
+
+    // 停止播放
+    mediaPlayer->stop();
   }
-  // 随机导出
-  else if (exportMode == 1)
+  catch (const std::exception &e)
   {
-  }
-  // 正交分布导出
-  else if (exportMode == 2)
-  {
+    qDebug() << "Error:" << e.what();
   }
 }
 
@@ -203,6 +229,27 @@ void exportThread::setOrthogonalCount(int count)
 }
 
 /***********************************************************
+ * 函数名称: saveImage
+ * 函数功能: 保存图像
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 保存图像
+ ***********************************************************/
+void exportThread::saveImage()
+{
+  // 根据导出设置保存图像
+  // 例如：保存到文件
+  QString fileName = QString("%1/%2/%3.jpg")
+                         .arg(exportPath)
+                         .arg(exportName)
+                         .arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"));
+  if (currentFrame.save(fileName))
+  {
+    qDebug() << "Frame saved to:" << fileName;
+  }
+}
+
+/***********************************************************
  * 函数名称: processVideoFrame
  * 函数功能: 处理视频帧
  * 参数说明:
@@ -224,18 +271,26 @@ void exportThread::processVideoFrame(const QVideoFrame &frame)
 
   currentFrame = image.copy();
 
-  // 根据导出设置保存图像
-  // 例如：保存到文件
-  QString fileName = QString("%1/%2/%3.jpg")
-                         .arg(exportPath)
-                         .arg(exportName)
-                         .arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"));
-  if (currentFrame.save(fileName))
+  // 如果正在导出
+  if (isExporting)
   {
-    qDebug() << "Frame saved to:" << fileName;
-  }
-  else
-  {
-    qDebug() << "Failed to save frame.";
+    if (exportMode == 0)
+    {
+      // 平均间隔导出
+      frameCount++;
+      if (frameCount % interval == 0)
+      {
+        // 保存图像
+        saveImage();
+      }
+    }
+    else if (exportMode == 1)
+    {
+      // 随机导出
+    }
+    else if (exportMode == 2)
+    {
+      // 正交分布导出
+    }
   }
 }

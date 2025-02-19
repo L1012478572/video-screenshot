@@ -36,6 +36,7 @@
  *   9. setOrthogonalCount        - 设置正交分布数
  *   10. run                      - 线程运行函数，处理视频导出
  *   11. processVideoFrame        - 处理视频帧
+ *   12. saveImage                - 保存图像
  *
  * 版本历史:
  *   - 版本 1.0 (2025-02-05) - LiuJiaLe
@@ -66,6 +67,7 @@ public:
     void setInterval(int interval);             // 设置间隔帧数
     void setRandomCount(int count);             // 设置随机截图数
     void setOrthogonalCount(int count);         // 设置正交分布数
+    void saveImage();                           // 保存图像
 
 protected:
     void run() override; // 线程运行函数，处理视频导出
@@ -85,6 +87,10 @@ private:
     int interval;          // 间隔帧数
     int randomCount;       // 随机截图数
     int orthogonalCount;   // 正交分布数
+    int totalFrames;       // 总帧数
+    int frameCount;        // 帧计数器
+
+    bool isExporting; // 是否正在导出
 };
 
 #endif // EXPORTTHREAD_H

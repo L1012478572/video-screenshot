@@ -54,6 +54,7 @@
 #include <QVideoFrame>
 #include <QVideoProbe>
 #include <QMessageBox>
+#include <QThread>
 
 /***********************************************************
  * 函数名称: MainWindow
@@ -208,7 +209,8 @@ void MainWindow::openVideoFile()
     if (!fileName.isEmpty())
     {
         mediaPlayer->setMedia(QUrl::fromLocalFile(fileName)); // 设置视频文件路径
-        mediaPlayer->play();                                  // 播放视频
+
+        mediaPlayer->play(); // 播放视频
 
         videoNameLabel->setText(fileName); // 显示视频文件名
     }
