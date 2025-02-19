@@ -1,3 +1,42 @@
+/************************************************************
+ * Copyright 2025 LiuJiaLe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 文件: exportsettings.cpp
+ *
+ * 模块描述:
+ *   该模块负责导出设置的界面实现，包括路径选择和导出模式的配置。
+ *
+ * 主要功能:
+ *   1. 设置导出路径
+ *   2. 选择导出模式
+ *   3. 保存和加载导出设置
+ *
+ * 函数列表:
+ *   1. exportSettings            - 构造函数，初始化UI和加载设置
+ *   2. ~exportSettings           - 析构函数，保存设置并释放资源
+ *   3. initUI                    - 初始化用户界面
+ *   4. loadSettings              - 加载保存的设置
+ *   5. saveSettings              - 保存当前设置
+ *   6. onExportModeChanged       - 根据导出模式更新UI
+ *   7. onPathSelectClicked       - 选择导出路径
+ *
+ * 版本历史:
+ *   - 版本 1.0 (2025-02-05) - LiuJiaLe
+ *     * 初始版本创建
+ ***********************************************************/
+
 #include "exportsettings.h"
 #include "ui_exportsettings.h"
 #include <QFileDialog>
@@ -7,6 +46,14 @@
 #include <QLabel>
 #include <QLineEdit>
 
+/***********************************************************
+ * 函数名称: exportSettings
+ * 函数功能: 导出设置类的构造函数
+ * 参数说明:
+ *   parent - 父窗口指针,默认为nullptr
+ * 返回值: 无
+ * 备注: 初始化UI界面,加载保存的设置
+ ***********************************************************/
 exportSettings::exportSettings(QWidget *parent) : QWidget(parent),
                                                   ui(new Ui::exportSettings)
 {
@@ -16,6 +63,13 @@ exportSettings::exportSettings(QWidget *parent) : QWidget(parent),
     loadSettings();
 }
 
+/***********************************************************
+ * 函数名称: ~exportSettings
+ * 函数功能: 导出设置类的析构函数
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 保存设置并释放资源
+ ***********************************************************/
 exportSettings::~exportSettings()
 {
     saveSettings();
@@ -41,6 +95,13 @@ exportSettings::~exportSettings()
     delete ui;
 }
 
+/***********************************************************
+ * 函数名称: initUI
+ * 函数功能: 初始化用户界面
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 创建并设置布局和控件
+ ***********************************************************/
 void exportSettings::initUI()
 {
     // 添加layout
@@ -103,6 +164,13 @@ void exportSettings::initUI()
     modeLayout->addWidget(spinBoxOrthogonalCount);
 }
 
+/***********************************************************
+ * 函数名称: loadSettings
+ * 函数功能: 加载保存的设置
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 从QSettings加载设置并应用到UI
+ ***********************************************************/
 void exportSettings::loadSettings()
 {
     // 加载保存的设置
@@ -123,6 +191,13 @@ void exportSettings::loadSettings()
     onExportModeChanged(exportMode);
 }
 
+/***********************************************************
+ * 函数名称: saveSettings
+ * 函数功能: 保存当前设置
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 将当前UI设置保存到QSettings
+ ***********************************************************/
 void exportSettings::saveSettings()
 {
     // 保存当前设置
@@ -133,6 +208,13 @@ void exportSettings::saveSettings()
     settings->setValue("orthogonalCount", spinBoxOrthogonalCount->value());
 }
 
+/***********************************************************
+ * 函数名称: onExportModeChanged
+ * 函数功能: 根据导出模式更新UI
+ * 参数说明: index - 当前选择的导出模式索引
+ * 返回值: 无
+ * 备注: 显示或隐藏与导出模式相关的控件
+ ***********************************************************/
 void exportSettings::onExportModeChanged(int index)
 {
     // 根据选择的模式显示/隐藏相关控件
@@ -146,6 +228,13 @@ void exportSettings::onExportModeChanged(int index)
     labelOrthogonalCount->setVisible(index == ORTHOGONAL);
 }
 
+/***********************************************************
+ * 函数名称: onPathSelectClicked
+ * 函数功能: 选择导出路径
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 打开目录选择对话框并设置导出路径
+ ***********************************************************/
 void exportSettings::onPathSelectClicked()
 {
     QString dir = QFileDialog::getExistingDirectory(this,

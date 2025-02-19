@@ -1,3 +1,47 @@
+/************************************************************
+ * Copyright 2025 LiuJiaLe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * 文件: mainwindow.cpp
+ *
+ * 模块描述:
+ *   该模块负责视频播放器的主窗口实现，包括视频播放、截图和导出功能。
+ *
+ * 主要功能:
+ *   1. 视频文件的打开和播放
+ *   2. 视频播放控制（播放/暂停）
+ *   3. 视频截图和导出功能
+ *
+ * 函数列表:
+ *   1. MainWindow                - 构造函数，初始化UI和信号连接
+ *   2. ~MainWindow               - 析构函数，释放资源
+ *   3. initUI                    - 初始化用户界面
+ *   4. openVideoFile             - 打开视频文件
+ *   5. openExportSettings        - 打开导出设置对话框
+ *   6. exportVideo               - 导出视频
+ *   7. togglePlayPause           - 切换播放/暂停状态
+ *   8. setPosition               - 设置视频播放位置
+ *   9. updatePosition            - 更新播放位置
+ *   10. updateDuration           - 更新视频时长
+ *   11. updateDurationInfo       - 更新播放时间信息
+ *   12. takeScreenshot           - 截取视频截图
+ *   13. processVideoFrame        - 处理视频帧
+ *
+ * 版本历史:
+ *   - 版本 1.0 (2025-02-05) - LiuJiaLe
+ *     * 初始版本创建
+ ***********************************************************/
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -11,6 +55,14 @@
 #include <QVideoProbe>
 #include <QMessageBox>
 
+/***********************************************************
+ * 函数名称: MainWindow
+ * 函数功能: 主窗口类的构造函数
+ * 参数说明:
+ *   parent - 父窗口指针,默认为nullptr
+ * 返回值: 无
+ * 备注: 初始化UI界面,创建并连接媒体播放器相关组件
+ ***********************************************************/
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
                                           ui(new Ui::MainWindow),
                                           mediaPlayer(new QMediaPlayer(this)),
@@ -35,6 +87,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     }
 }
 
+/***********************************************************
+ * 函数名称: ~MainWindow
+ * 函数功能: 主窗口类的析构函数
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 释放资源,删除相关控件
+ ***********************************************************/
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -55,6 +114,13 @@ MainWindow::~MainWindow()
     delete videoProbe;
 }
 
+/***********************************************************
+ * 函数名称: initUI
+ * 函数功能: 初始化用户界面
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 设置主窗口大小,标题,创建控件并设置布局
+ ***********************************************************/
 void MainWindow::initUI()
 {
     // 设置主窗口的大小
@@ -128,6 +194,13 @@ void MainWindow::initUI()
     toolBar->addAction(exportVideoAction);
 }
 
+/***********************************************************
+ * 函数名称: openVideoFile
+ * 函数功能: 打开视频文件
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 打开文件对话框选择视频文件
+ ***********************************************************/
 void MainWindow::openVideoFile()
 {
     // 打开文件对话框选择视频文件
@@ -141,6 +214,13 @@ void MainWindow::openVideoFile()
     }
 }
 
+/***********************************************************
+ * 函数名称: openExportSettings
+ * 函数功能: 打开导出设置对话框
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 打开导出设置对话框
+ ***********************************************************/
 void MainWindow::openExportSettings()
 {
     // 实现导出设置功能
@@ -149,6 +229,13 @@ void MainWindow::openExportSettings()
     qDebug("Export settings clicked!");
 }
 
+/***********************************************************
+ * 函数名称: exportVideo
+ * 函数功能: 导出视频
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 导出视频
+ ***********************************************************/
 void MainWindow::exportVideo()
 {
     // 实现导出视频功能
@@ -156,6 +243,13 @@ void MainWindow::exportVideo()
     qDebug("Export video clicked!");
 }
 
+/***********************************************************
+ * 函数名称: togglePlayPause
+ * 函数功能: 切换播放/暂停状态
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 切换播放/暂停状态
+ ***********************************************************/
 void MainWindow::togglePlayPause()
 {
     if (mediaPlayer->state() == QMediaPlayer::PlayingState)
@@ -170,23 +264,51 @@ void MainWindow::togglePlayPause()
     }
 }
 
+/***********************************************************
+ * 函数名称: setPosition
+ * 函数功能: 设置视频播放位置
+ * 参数说明: position - 视频播放位置
+ * 返回值: 无
+ * 备注: 设置视频播放位置
+ ***********************************************************/
 void MainWindow::setPosition(int position)
 {
     mediaPlayer->setPosition(position);
 }
 
+/***********************************************************
+ * 函数名称: updatePosition
+ * 函数功能: 更新视频播放位置
+ * 参数说明: position - 视频播放位置
+ * 返回值: 无
+ * 备注: 更新视频播放位置
+ ***********************************************************/
 void MainWindow::updatePosition(qint64 position)
 {
     progressBar->setValue(position);
     updateDurationInfo(position / 1000);
 }
 
+/***********************************************************
+ * 函数名称: updateDuration
+ * 函数功能: 更新视频时长
+ * 参数说明: duration - 视频时长
+ * 返回值: 无
+ * 备注: 更新视频时长
+ ***********************************************************/
 void MainWindow::updateDuration(qint64 duration)
 {
     progressBar->setRange(0, duration);
     updateDurationInfo(duration / 1000);
 }
 
+/***********************************************************
+ * 函数名称: updateDurationInfo
+ * 函数功能: 更新视频时长信息
+ * 参数说明: currentInfo - 当前视频时长
+ * 返回值: 无
+ * 备注: 更新视频时长信息
+ ***********************************************************/
 void MainWindow::updateDurationInfo(qint64 currentInfo)
 {
     QString tStr;
@@ -206,6 +328,13 @@ void MainWindow::updateDurationInfo(qint64 currentInfo)
     timeLabel->setText(tStr);
 }
 
+/***********************************************************
+ * 函数名称: takeScreenshot
+ * 函数功能: 拍照
+ * 参数说明: 无
+ * 返回值: 无
+ * 备注: 拍照
+ ***********************************************************/
 void MainWindow::takeScreenshot()
 {
     if (!mediaPlayer->isVideoAvailable())
@@ -267,7 +396,13 @@ void MainWindow::takeScreenshot()
     }
 }
 
-// 处理视频帧
+/***********************************************************
+ * 函数名称: processVideoFrame
+ * 函数功能: 处理视频帧
+ * 参数说明: frame - 视频帧
+ * 返回值: 无
+ * 备注: 处理视频帧
+ ***********************************************************/
 void MainWindow::processVideoFrame(const QVideoFrame &frame)
 {
     QVideoFrame cloneFrame(frame);
